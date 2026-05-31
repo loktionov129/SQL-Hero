@@ -1,4 +1,3 @@
--- Платежи
 SET IDENTITY_INSERT client.ClientPayments ON;
 GO
 
