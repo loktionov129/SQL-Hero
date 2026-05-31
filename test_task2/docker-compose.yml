@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   tt2mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -19,3 +21,23 @@ services:
     tty: true
     volumes:
       - ./sql:/sql
+    working_dir: /sql
+    command: >
+      sh -c "
+        echo 'Ждём SQL Server...';
+        until /opt/mssql-tools/bin/sqlcmd -S tt2mssql,1433 -U SA -P 'V3ry23C93tp422w0Rd!' -Q 'SELECT 42' >/dev/null 2>&1; do
+          echo 'SQL Server ещё не готов, ждём...';
+          sleep 5;
+        done;
+        echo 'SQL Server готов';
+        echo '1. Инициализация (создание схемы + таблицы платежей)...';
+        /opt/mssql-tools/bin/sqlcmd -S tt2mssql,1433 -U SA -P 'V3ry23C93tp422w0Rd!' -i /sql/1init.sql;
+        echo '2. Сид (наполнение таблицы платежей)...';
+        /opt/mssql-tools/bin/sqlcmd  -S tt2mssql,1433 -U SA -P 'V3ry23C93tp422w0Rd!' -i /sql/2seed.sql;
+        echo '3. Функция (код client.fn_DailyPaymentsByClient)...';
+        /opt/mssql-tools/bin/sqlcmd  -S tt2mssql,1433 -U SA -P 'V3ry23C93tp422w0Rd!' -i /sql/3func.sql;
+        echo '4. Тесты (тестовые вызовы функции client.fn_DailyPaymentsByClient)...';
+        /opt/mssql-tools/bin/sqlcmd  -S tt2mssql,1433 -U SA -P 'V3ry23C93tp422w0Rd!' -i /sql/4test.sql;
+        echo 'Готово';
+        sleep infinity
+      "

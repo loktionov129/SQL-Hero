@@ -10,7 +10,7 @@ CREATE FUNCTION client.fn_DailyPaymentsByClient
 RETURNS @Result TABLE
 (
     Dt     DATE,
-    Summa  MONEY
+    Сумма  MONEY
 )
 AS
 BEGIN
@@ -22,16 +22,16 @@ BEGIN
         FROM DateRange
         WHERE Dt < @Ed
     )
-    INSERT INTO @Result (Dt, Summa)
+    INSERT INTO @Result (Dt, Сумма)
     SELECT
         dr.Dt,
-        COALESCE(ps.Summa, 0.0) AS Summa
+        COALESCE(ps.Сумма, 0.0) AS Сумма
     FROM DateRange AS dr
     LEFT JOIN
     (
         SELECT
             CAST(p.Dt AS DATE) AS Dt,
-            SUM(p.Amount) AS Summa
+            SUM(p.Amount) AS Сумма
         FROM client.ClientPayments AS p
         WHERE p.ClientId = @ClientId
           AND CAST(p.Dt AS DATE) BETWEEN @Sd AND @Ed
