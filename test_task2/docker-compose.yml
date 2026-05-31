@@ -1,0 +1,21 @@
+services:
+  tt2mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tt2mssql
+    hostname: tt2mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=V3ry23C93tp422w0Rd!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+
+  tt2tools:
+    image: mcr.microsoft.com/mssql-tools:latest
+    container_name: tt2tools
+    depends_on:
+      - tt2mssql
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./sql:/sql
